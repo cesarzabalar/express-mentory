@@ -1,4 +1,4 @@
 module.exports = {
-	AUTH_EMAIL: 'cesarzabala@gmail.com',
-	APP_KEY: 'qwerty123456',
+	APP_KEY: process.env.APP_KEY,
+	AUTH_EMAIL: process.env.AUTH_EMAIL,
 };

@@ -1,28 +1,24 @@
+require('dotenv').config();
 const express = require('express'); //COMMONJS CJS
 const middlewareNotFound = require('./middlewares/notFound');
 const middlewareError = require('./middlewares/error');
-const log = require('./middlewares/log');
+//const log = require('./middlewares/log');
+const { generateToken, authMiddleware } = require('./middlewares/auth');
 const morgan = require('morgan');
-const { generateToken, authMiddleware } = require('./middlewares/authMiddleware');
+
+const modulesRoutes = require('./modules/routes');
 const app = express();
 
-//const usersRouter = require('./modules/users/usersRouter');
-const appRoutes = require('./modules/routes');
+const apiRoutes = express.Router();
 
 // App Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan(':method :host :url :status :param[cedula] :body :res[content-length] - :response-time ms - :date'));
-morgan.token('host', function (req) {
-	return req.hostname;
-});
-morgan.token('param', function (req, res, param) {
-	return req.params[param];
-});
 
-morgan.token('body', (req) => JSON.stringify(req.body));
-
-const apiRoutes = express.Router();
+if (process.env.NODE_ENV === 'development') {
+	app.use(morgan(':date :url :method :status body: :body - :response-time ms'));
+	morgan.token('body', (req) => JSON.stringify(req.body));
+}
 
 app.get('/', (req, res) => {
 	const params = req.query;
@@ -45,16 +41,13 @@ app.post('/error', () => {
 	throw new Error('Endpoint error');
 });
 
-// generate token
-app.post('/token', generateToken);
+app.post('/getToken', generateToken);
 
-//modules routes
-appRoutes.forEach((route) => {
-	const [path] = Object.keys(route);
-	apiRoutes.use(`/${path}`, route[path]);
+modulesRoutes.forEach((route) => {
+	const [routeName] = Object.keys(route);
+	apiRoutes.use(`/${routeName}`, route[routeName]);
 });
 
-// API global prefix route
 app.use('/v1/api', apiRoutes);
 
 app.use(middlewareNotFound);

@@ -12,8 +12,15 @@ const generateToken = (req, res, next) => {
 
 const authMiddleware = (req, res, next) => {
 	const { authorization } = req.headers;
-	console.log(authorization);
-	next();
+	if (!authorization) return res.status(400).json({ status: 400, message: 'User not authorized' });
+
+	try {
+		const verified = jwt.verify(authorization, APP_KEY);
+		req.user = verified;
+		next();
+	} catch (err) {
+		res.status(401).json({ status: 401, message: 'Token invalid' });
+	}
 };
 
 module.exports = {

@@ -1,0 +1,45 @@
+service: express-serverless-mentory
+frameworkVersion: '2'
+useDotenv: true
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  region: us-west-2
+  stackTags:
+    mentory: express-serverless-mentory
+  runtime: nodejs14.x
+  stage: dev
+  timeout: 15
+  memorySize: 128
+  lambdaHashingVersion: 20201221
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Resource: '*'
+          Action:
+            - 'logs:*'
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+
+functions:
+  expresServerless:
+    handler: src/index.handler
+    name: express-serverless-mentor-${self:custom.stage}
+    description: 'Express with serverles framework'
+    environment:
+      APP_KEY: ${env:APP_KEY}
+      AUTH_EMAIL: ${env:AUTH_EMAIL}
+    events:
+      - http:
+          path: /
+          method: ANY
+          cors: true
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true

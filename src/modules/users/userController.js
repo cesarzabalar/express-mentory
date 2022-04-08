@@ -1,5 +1,6 @@
 const register = (req, res) => {
-	res.json({ module: 'users' });
+	const user = { email: 'UserTest', password: 'Test123', company: 'Test' };
+	res.json({ status: true, data: user });
 	//registerUseCase.register(req.body)
 };
 

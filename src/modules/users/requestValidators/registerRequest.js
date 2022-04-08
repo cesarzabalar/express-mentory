@@ -6,12 +6,10 @@ const schemaRegister = Joi.object({
 	company: Joi.string().min(3).max(255).required(),
 });
 
-const registerMiddleware = (req, res, next) => {
+const registerRequest = (req, res, next) => {
 	const { error } = schemaRegister.validate(req.body);
 	if (error) return res.status(401).json({ status: false, error: error.details });
 	next();
 };
 
-module.exports = {
-	registerMiddleware,
-};
+module.exports = registerRequest;

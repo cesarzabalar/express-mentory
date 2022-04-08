@@ -1,24 +1,30 @@
-const express = require('express'); //COMMONJS CJS
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
+const { PORT } = require('./config');
+
+// Custom middlewares
 const middlewareNotFound = require('./middlewares/notFound');
 const middlewareError = require('./middlewares/error');
-const { generateToken } = require('./middlewares/auth');
-const morgan = require('morgan');
+
+//Swagger
+const SwaggerUI = require('swagger-ui-express');
+const { swaggerSpecs, swaggerOptions } = require('./docs/swagger');
 
 const modulesRoutes = require('./modules/routes');
 const app = express();
-
 const apiRoutes = express.Router();
 
 // App Middlewares
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/api', SwaggerUI.serve, SwaggerUI.setup(swaggerSpecs(PORT), swaggerOptions));
 
 if (process.env.NODE_ENV === 'development') {
 	app.use(morgan(':date :url :method :status body: :body - :response-time ms'));
 	morgan.token('body', (req) => JSON.stringify(req.body));
 }
-
-app.post('/getToken', generateToken);
 
 // Dynamic routes
 modulesRoutes.forEach((route) => {

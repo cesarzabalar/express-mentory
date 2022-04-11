@@ -192,6 +192,6 @@ components:
         - email
         - emailVerified
   securitySchemes:
-    API Key - 1:
+    authHttp:
       type: http
       scheme: bearer
